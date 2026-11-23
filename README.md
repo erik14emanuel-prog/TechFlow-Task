@@ -45,3 +45,27 @@ O workflow `.github/workflows/ci.yml` executa essas verificações em cada push 
 
 ## Limitações e boas práticas
 Protótipo acadêmico de usuário único, sem login; não usar para dados sensíveis. Consultas SQL parametrizadas e validação de entradas são aplicadas nas rotas. Para produção seriam necessários autenticação, proteção CSRF, autorização, logs e infraestrutura adequada.
+
+
+## Gestão de mudanças
+
+Durante o desenvolvimento, foi identificada a
+necessidade de facilitar a identificação de
+tarefas críticas pela equipe de logística.
+
+Por esse motivo, foi proposta uma alteração
+no escopo inicial: implementar um filtro de
+tarefas por prioridade (Alta, Média e Baixa).
+
+A solicitação foi registrada no GitHub Projects
+e será implementada e validada por testes
+automatizados antes de ser considerada concluída.
+
+Essa mudança demonstra a aplicação de
+metodologias ágeis, permitindo adaptar o
+produto às necessidades do cliente.
+
+
+
+
+
