@@ -36,3 +36,68 @@ def test_delete(client):
 def test_missing_task(client):
     assert client.get('/tasks/999/edit').status_code == 404
     assert client.post('/tasks/999/delete').status_code == 404
+
+
+
+def test_filter_by_priority(client):
+    """Verifica se o filtro retorna somente a prioridade escolhida."""
+    client.post('/tasks', data={
+        'title': 'Entrega urgente',
+        'priority': 'Alta'
+    })
+    client.post('/tasks', data={
+        'title': 'Organizar documentos',
+        'priority': 'Baixa'
+    })
+
+    response = client.get('/?priority=Alta')
+
+    assert response.status_code == 200
+    assert b'Entrega urgente' in response.data
+    assert b'Organizar documentos' not in response.data
+
+
+def test_filter_by_priority_and_status(client):
+    """Verifica a combinação dos filtros de prioridade e status."""
+    client.post('/tasks', data={
+        'title': 'Pedido prioritario pendente',
+        'priority': 'Alta',
+        'status': 'A Fazer'
+    })
+    client.post('/tasks', data={
+        'title': 'Pedido prioritario concluido',
+        'priority': 'Alta',
+        'status': 'Concluído'
+    })
+    client.post('/tasks', data={
+        'title': 'Pedido comum pendente',
+        'priority': 'Baixa',
+        'status': 'A Fazer'
+    })
+
+    response = client.get(
+        '/?priority=Alta&status=A+Fazer'
+    )
+
+    assert response.status_code == 200
+    assert b'Pedido prioritario pendente' in response.data
+    assert b'Pedido prioritario concluido' not in response.data
+    assert b'Pedido comum pendente' not in response.data
+
+
+def test_show_all_tasks_without_filters(client):
+    """Verifica se todas as tarefas aparecem sem filtros."""
+    client.post('/tasks', data={
+        'title': 'Tarefa de prioridade alta',
+        'priority': 'Alta'
+    })
+    client.post('/tasks', data={
+        'title': 'Tarefa de prioridade baixa',
+        'priority': 'Baixa'
+    })
+
+    response = client.get('/')
+
+    assert response.status_code == 200
+    assert b'Tarefa de prioridade alta' in response.data
+    assert b'Tarefa de prioridade baixa' in response.data
