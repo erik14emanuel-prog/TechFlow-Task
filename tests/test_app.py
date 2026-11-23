@@ -101,3 +101,33 @@ def test_show_all_tasks_without_filters(client):
     assert response.status_code == 200
     assert b'Tarefa de prioridade alta' in response.data
     assert b'Tarefa de prioridade baixa' in response.data
+
+
+def test_reject_title_over_120_characters(client):
+    """Rejeita títulos acima do limite permitido."""
+    response = client.post('/tasks', data={
+        'title': 'A' * 121,
+        'priority': 'Alta',
+        'status': 'A Fazer'
+    })
+
+    assert response.status_code == 400
+
+
+def test_reject_description_over_1000_characters(client):
+    """Rejeita descrições acima do limite permitido."""
+    response = client.post('/tasks', data={
+        'title': 'Tarefa de teste',
+        'description': 'A' * 1001
+    })
+
+    assert response.status_code == 400
+
+
+def test_reject_title_with_only_spaces(client):
+    """Impede cadastro com título contendo apenas espaços."""
+    response = client.post('/tasks', data={
+        'title': '     '
+    })
+
+    assert response.status_code == 400
