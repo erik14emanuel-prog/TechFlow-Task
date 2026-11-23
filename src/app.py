@@ -43,15 +43,38 @@ def create_app(test_config=None):
             abort(400, description='Prioridade ou status inválido.')
         return title, description, priority, status
 
+
     @app.get('/')
     def index():
+        # Recupera os filtros selecionados pelo usuário.
         status_filter = request.args.get('status', '')
+        priority_filter = request.args.get('priority', '')
+
+        # Monta a consulta de forma segura e parametrizada.
+        query = 'SELECT * FROM tasks WHERE 1=1'
+        params = []
+
+        if status_filter in STATUS:
+            query += ' AND status = ?'
+            params.append(status_filter)
+
+        if priority_filter in PRIORITIES:
+            query += ' AND priority = ?'
+            params.append(priority_filter)
+
+        query += ' ORDER BY id DESC'
+
         with connect() as db:
-            if status_filter in STATUS:
-                tasks = db.execute('SELECT * FROM tasks WHERE status=? ORDER BY id DESC', (status_filter,)).fetchall()
-            else:
-                tasks = db.execute('SELECT * FROM tasks ORDER BY id DESC').fetchall()
-        return render_template('index.html', tasks=tasks, statuses=STATUS, priorities=PRIORITIES, selected=status_filter)
+            tasks = db.execute(query, params).fetchall()
+
+        return render_template(
+            'index.html',
+            tasks=tasks,
+            statuses=STATUS,
+            priorities=PRIORITIES,
+            selected=status_filter,
+            selected_priority=priority_filter
+        )
 
     @app.post('/tasks')
     def create_task():
